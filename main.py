@@ -1,11 +1,8 @@
-import discord, csv
+import discord, csv, os
 class bot(discord.Client):
     async def on_ready(self):
         print(f"Succesfully logged on {self.user}!")
-
-
-
-
+        os.system("cls")
 # ============================commands=============================
     async def on_message(self, msg):
         ctx = msg.channel
@@ -106,7 +103,7 @@ class bot(discord.Client):
                 if(admin['perms']=="1" and admin['id']==str(msg.author.id)):
                     adminCheck = True
             if(adminCheck==True):
-                await ctx.send("Stopping the bot...")
+                print("Stopping the bot...")
                 await client.close()
             else:
                 await ctx.send("You are not a admin!")
