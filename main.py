@@ -88,14 +88,31 @@ class bot(discord.Client):
                             embed = discord.Embed(
                                 title="Balance",
                                 description=f"+ 🪙 {int(i['capital'])+int(i['base'])}",
-                                color=discord.Color.green()
+                                color=discord.Color.blue()
                             )
                             await ctx.send(embed=embed)
                             return
             await ctx.send("You are not registered!")
 
-        
 
+        # stop command
+        if msg.content.startswith('!stop'):
+            adminFile = open('data/admin.csv', 'r')
+            admins = csv.DictReader(adminFile)
+            admins = list(admins)
+            adminFile.close()
+            adminCheck = False
+            for admin in admins:
+                if(admin['perms']=="1" and admin['id']==str(msg.author.id)):
+                    adminCheck = True
+            if(adminCheck==True):
+                await ctx.send("Stopping the bot...")
+                await client.close()
+            else:
+                await ctx.send("You are not a admin!")
+
+
+        
 
 
 
