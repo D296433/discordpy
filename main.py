@@ -8,6 +8,7 @@ class bot(discord.Client):
 
 # ============================commands=============================
     async def on_message(self, msg):
+        ctx = msg.channel
         print(f'{msg.author}: {msg.content}')
         if msg.author == client.user:
             return
@@ -21,9 +22,9 @@ class bot(discord.Client):
                 if(admin['perms']=="1" and admin['id']==str(msg.author.id)):
                     adminCheck = True
             if(adminCheck==True):
-                await msg.channel.send("You are a admin!")
+                await ctx.send("You are a admin!")
             else:
-                await msg.channel.send("You are not a admin!")
+                await ctx.send("You are not a admin!")
 
 
 
@@ -35,7 +36,7 @@ class bot(discord.Client):
             userFile.close()
             for user in users:
                 if(user['id']==str(msg.author.id)):
-                    await msg.channel.send("You are already registered!")
+                    await ctx.send("You are already registered!")
                     return
             userFile = open('data/users.csv', 'a')
             userFile.write(f'\n{msg.author.id},0')
@@ -44,6 +45,54 @@ class bot(discord.Client):
             incomeFile.write(f'\n{msg.author.id},1000,150')
             incomeFile.close()
             await msg.add_reaction('👍')
+
+
+        # balance command
+        if msg.content.startswith('!balance') or msg.content.startswith('!bal'):
+            userFile = open('data/users.csv', 'r')
+            users = csv.DictReader(userFile)
+            users = list(users)
+            userFile.close()
+            for user in users:
+                if(user['id']==str(msg.author.id)):
+                    embed = discord.Embed(
+                        title="Balance",
+                        description=f"🪙 {user['bal']}",
+                        color=discord.Color.red()
+                    )
+                    await ctx.send(embed=embed)
+                    return
+            await ctx.send("You are not registered!")
+
+
+        # earn command
+        if msg.content.startswith('!earn'):
+            userFile = open('data/users.csv', 'r')
+            users = csv.DictReader(userFile)
+            users = list(users)
+            userFile.close()
+            for user in users:
+                if(user['id']==str(msg.author.id)):
+                    incomeFile = open('data/income.csv', 'r')
+                    income = csv.DictReader(incomeFile)
+                    income = list(income)
+                    incomeFile.close()
+                    for i in income:
+                        if(i['id']==str(msg.author.id)):
+                            user['bal'] = int(user['bal']) + int(i['base']) + int(i['capital'])
+                            userFile = open('data/users.csv', 'w')
+                            userFile.write('id,bal\n')
+                            for user2 in users:
+                                userFile.write(f'{user2["id"]},{user2["bal"]}\n')
+                            userFile.close()
+                            embed = discord.Embed(
+                                title="Balance",
+                                description=f"+ 🪙 {int(i['capital'])+int(i['base'])}",
+                                color=discord.Color.green()
+                            )
+                            await ctx.send(embed=embed)
+                            return
+            await ctx.send("You are not registered!")
 
         
 
